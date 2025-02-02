@@ -40,3 +40,20 @@ This repository contains my studies and projects related to Ethereum and Solidit
 - NFTs and Token Standards
 - Gas Optimization
 - Advanced Security Patterns
+
+
+
+## Hardhat
+
+### Installation
+
+```bash
+npm install --save-dev hardhat
+```
+
+### Create a Hardhat project
+
+```bash
+npx hardhat init
+```
+

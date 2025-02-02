@@ -50,15 +50,4 @@ contract SimpleStorage {
     function send() external payable {
         owner.transfer(msg.value);
     }
-
-    function removePerson(string memory _name) public {
-        uint256 index = 0;
-        for (uint256 i = 0; i < listOfPeople.length; i++) {
-            if (listOfPeople[i] == _name) {
-                index = i;
-            }
-        }
-        listOfPeople[index] = listOfPeople[listOfPeople.length - 1];
-        listOfPeople.pop();
-    }
 }

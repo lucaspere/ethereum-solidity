@@ -2,7 +2,7 @@
 pragma solidity ^0.8.9;
 
 contract HelloWorld {
-    string public message = "Hello World";
+    string public message = "Hello, World!";
     uint public counter = 0;
 
     struct Task {
