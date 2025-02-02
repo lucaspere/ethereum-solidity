@@ -19,12 +19,3 @@ contract Owner {
         owner = _newOwner;
     }
 }
-
-contract MyToken is Owner {
-        using SafeMath for uint;
-    mapping(address => uint) balances;
-
-    function mint(address to, uint amount) public onlyOwner {
-        balances[to] = amount;
-    }
- }
