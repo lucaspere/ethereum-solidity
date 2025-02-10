@@ -181,9 +181,7 @@ abstract contract TokenPair is ITokenPair, ERC20, ReentrancyGuard {
             : 0;
         require(amountAIn > 0 || amountBIn > 0, "INSUFFICIENT_INPUT_AMOUNT");
 
-        // Step 4: Verify if the balances are sufficient for rewards
         {
-            // Scope for balance{0,1}Adjusted, avoids stack to deep error.
             uint256 balance0Adjusted = balance0 * 1000 - amountAIn * 2;
             uint256 balance1Adjusted = balance1 * 1000 - amountBIn * 2;
             require(
@@ -193,8 +191,30 @@ abstract contract TokenPair is ITokenPair, ERC20, ReentrancyGuard {
             );
         }
 
-        // Step 5: Update the reserves with token balances
         _setReserves(balance0, balance1);
         emit Swap(msg.sender, amountAIn, amountBIn, amountAOut, amountBOut, to);
+    }
+
+    function skim(address to) external nonReentrant {
+        address _tokenA = tokenA;
+        address _tokenB = tokenB;
+
+        _safeTransfer(
+            _tokenA,
+            to,
+            ERC20(_tokenA).balanceOf(address(this)) - reserveA
+        );
+        _safeTransfer(
+            _tokenB,
+            to,
+            ERC20(_tokenB).balanceOf(address(this)) - reserveB
+        );
+    }
+
+    function sync() external nonReentrant {
+        _setReserves(
+            IERC20(tokenA).balanceOf(address(this)),
+            IERC20(tokenB).balanceOf(address(this))
+        );
     }
 }
