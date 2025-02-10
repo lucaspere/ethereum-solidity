@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./interfaces/ITokenPair.sol";
 import "./interfaces/IPairFactory.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
@@ -14,7 +14,7 @@ abstract contract TokenPair is ITokenPair, ERC20, ReentrancyGuard {
     uint256 public kLast;
     uint256 private reserveA;
     uint256 private reserveB;
-    uint256 private constant MINIMUM_LIQUIDITY = 10**3;
+    uint256 private constant MINIMUM_LIQUIDITY = 10 ** 3;
     uint256 private blockTimestampLast;
 
     bytes4 private constant SELECTOR =
@@ -22,7 +22,6 @@ abstract contract TokenPair is ITokenPair, ERC20, ReentrancyGuard {
 
     constructor() ERC20("DEX Token Pair", "DEX-TP") {
         factory = msg.sender;
-
     }
 
     function initialize(address _tokenA, address _tokenB) external {
@@ -93,21 +92,25 @@ abstract contract TokenPair is ITokenPair, ERC20, ReentrancyGuard {
 
         _setReserves(balanceA, balanceB);
 
-        if(hasReward) kLast = reserveA * reserveB;
+        if (hasReward) kLast = reserveA * reserveB;
         emit Mint(msg.sender, amountA, amountB);
     }
 
-    function _mintReward(uint256 _reserveA, uint256 _reserveB) private returns (bool hasReward) {
+    function _mintReward(
+        uint256 _reserveA,
+        uint256 _reserveB
+    ) private returns (bool hasReward) {
         address rewardTo = IPairFactory(factory).rewardTo();
         hasReward = rewardTo != address(0);
         uint256 _kLast = kLast; // gas saving
         if (hasReward) {
-            if(_kLast != 0) {
+            if (_kLast != 0) {
                 uint256 rootK = Math.sqrt(_reserveA * _reserveB);
                 uint256 rootKLast = Math.sqrt(_kLast);
 
-                if(rootK > _kLast) {
-                    uint256 liquidity = (totalSupply() * (rootK - _kLast)) / (rootKLast + rootK * 9);
+                if (rootK > _kLast) {
+                    uint256 liquidity = (totalSupply() * (rootK - _kLast)) /
+                        (rootKLast + rootK * 9);
 
                     if (liquidity > 0) {
                         _mint(rewardTo, liquidity);
@@ -119,8 +122,10 @@ abstract contract TokenPair is ITokenPair, ERC20, ReentrancyGuard {
         }
     }
 
-    function burn(address to) external nonReentrant() returns (uint256 amountA, uint256 amountB) {
-       (uint256 _reserveA, uint256 _reserveB, ) = getReserves();
+    function burn(
+        address to
+    ) external nonReentrant returns (uint256 amountA, uint256 amountB) {
+        (uint256 _reserveA, uint256 _reserveB, ) = getReserves();
         address _tokenA = tokenA;
         address _tokenB = tokenB;
         uint256 balanceA = IERC20(_tokenA).balanceOf(address(this));
@@ -134,16 +139,62 @@ abstract contract TokenPair is ITokenPair, ERC20, ReentrancyGuard {
         require(amountA > 0 && amountB > 0, "INSUFFICIENT_LIQUIDITY_BURNED");
 
         _burn(address(this), liquidity);
-        _safetransfer(_tokenA, to, amountA);
-        _safetransfer(_tokenB, to, amountB);
+        _safeTransfer(_tokenA, to, amountA);
+        _safeTransfer(_tokenB, to, amountB);
 
         balanceA = IERC20(_tokenA).balanceOf(address(this));
         balanceB = IERC20(_tokenB).balanceOf(address(this));
 
         _setReserves(balanceA, balanceB);
 
-        if(hasReward) kLast = reserveA * reserveB;
+        if (hasReward) kLast = reserveA * reserveB;
         emit Burn(msg.sender, amountA, amountB, to);
+    }
 
+    function swap(
+        uint256 amountAOut,
+        uint256 amountBOut,
+        address to
+    ) external nonReentrant {
+        require(amountAOut > 0 || amountBOut > 0, "INVALID_OUTPUT_AMOUNT");
+        (uint256 _reserveA, uint256 _reserveB, ) = getReserves();
+        require(
+            amountAOut < _reserveA && amountBOut < _reserveB,
+            "INSUFFICIENT_RESERVE"
+        );
+        address _tokenA = tokenA;
+        address _tokenB = tokenB;
+        require(to != _tokenA && to != _tokenB, "INVALID_OUTPUT_ADDRESS");
+
+        // Step 2: Perform the transfer
+        if (amountAOut > 0) _safeTransfer(_tokenA, to, amountAOut);
+        if (amountBOut > 0) _safeTransfer(_tokenB, to, amountBOut);
+
+        // Step 3: Verify if the input amount is sufficient
+        uint256 balance0 = IERC20(_tokenA).balanceOf(address(this));
+        uint256 balance1 = IERC20(_tokenB).balanceOf(address(this));
+        uint256 amountAIn = balance0 > _reserveA - amountAOut
+            ? balance0 - (_reserveA - amountAOut)
+            : 0;
+        uint256 amountBIn = balance1 > _reserveB - amountBOut
+            ? balance1 - (_reserveB - amountBOut)
+            : 0;
+        require(amountAIn > 0 || amountBIn > 0, "INSUFFICIENT_INPUT_AMOUNT");
+
+        // Step 4: Verify if the balances are sufficient for rewards
+        {
+            // Scope for balance{0,1}Adjusted, avoids stack to deep error.
+            uint256 balance0Adjusted = balance0 * 1000 - amountAIn * 2;
+            uint256 balance1Adjusted = balance1 * 1000 - amountBIn * 2;
+            require(
+                balance0Adjusted * balance1Adjusted >=
+                    reserveA * reserveB * 1000 ** 2,
+                "INSUFFICIENT_LIQUIDITY"
+            );
+        }
+
+        // Step 5: Update the reserves with token balances
+        _setReserves(balance0, balance1);
+        emit Swap(msg.sender, amountAIn, amountBIn, amountAOut, amountBOut, to);
     }
 }
