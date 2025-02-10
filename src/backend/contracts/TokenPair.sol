@@ -120,6 +120,30 @@ abstract contract TokenPair is ITokenPair, ERC20, ReentrancyGuard {
     }
 
     function burn(address to) external nonReentrant() returns (uint256 amountA, uint256 amountB) {
-        
+       (uint256 _reserveA, uint256 _reserveB, ) = getReserves();
+        address _tokenA = tokenA;
+        address _tokenB = tokenB;
+        uint256 balanceA = IERC20(_tokenA).balanceOf(address(this));
+        uint256 balanceB = IERC20(_tokenB).balanceOf(address(this));
+        uint256 liquidity = balanceOf(address(this));
+        bool hasReward = _mintReward(_reserveA, _reserveB);
+
+        amountA = (liquidity * balanceA) / totalSupply();
+        amountB = (liquidity * balanceB) / totalSupply();
+
+        require(amountA > 0 && amountB > 0, "INSUFFICIENT_LIQUIDITY_BURNED");
+
+        _burn(address(this), liquidity);
+        _safetransfer(_tokenA, to, amountA);
+        _safetransfer(_tokenB, to, amountB);
+
+        balanceA = IERC20(_tokenA).balanceOf(address(this));
+        balanceB = IERC20(_tokenB).balanceOf(address(this));
+
+        _setReserves(balanceA, balanceB);
+
+        if(hasReward) kLast = reserveA * reserveB;
+        emit Burn(msg.sender, amountA, amountB, to);
+
     }
 }
