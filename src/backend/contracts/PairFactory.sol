@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.28;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IPairFactory.sol";
 import "./libraries/Helper.sol";
@@ -7,12 +7,12 @@ import "./TokenPair.sol";
 
 contract PairFactory is IPairFactory, Ownable {
     bytes32 public constant INIT_CODE_PAIR_HASH =
-        keccak256(abi.encodePacked(type(TokenPair).creationCode));
+        keccak256(type(TokenPair).creationCode);
     address public rewardTo;
     mapping(address => mapping(address => address)) public getPair;
     address[] public allPairs;
 
-    constructor() {
+    constructor(address _owner) Ownable(_owner) {
         rewardTo = msg.sender;
     }
 
