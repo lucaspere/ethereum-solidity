@@ -1,14 +1,14 @@
 import * as fs from "fs";
 import { artifacts, viem } from "hardhat";
-
+import path from "path";
 async function main() {
-  const helloWorld = await viem.deployContract("SimpleDeFiToken", []);
-    await saveContractToFrontend(helloWorld.address, "SimpleDeFiToken");
+  const helloWorld = await viem.deployContract("TokenPair", []);
+    await saveContractToFrontend(helloWorld.address, "TokenPair");
   console.log(`contract deployed at ${helloWorld.address}`);
 }
 
 async function saveContractToFrontend(address: `0x${string}`, name: string) {
-  const contractDir = `${__dirname}/../frontend/src/contracts`;
+  const contractDir = path.join(__dirname, "/contracts");
   if (!fs.existsSync(contractDir)) {
     fs.mkdirSync(contractDir);
   }
