@@ -1,3 +1,6 @@
 [submodule "Building-Full-Stack-DeFi-Application"]
 	path = Building-Full-Stack-DeFi-Application
 	url = https://github.com/PacktPublishing/Building-Full-Stack-DeFi-Application.git
+[submodule "Registry/lib/forge-std"]
+	path = Registry/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
