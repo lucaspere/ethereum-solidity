@@ -40,10 +40,46 @@ const persister = createSyncStoragePersister({
   deserialize,
 });
 
-function App() {
-  const [activeTab, setActiveTab] = useState<"swap" | "liquidity" | "factory">(
-    "swap"
+enum ActiveTab {
+  SWAP = "swap",
+  LIQUIDITY = "liquidity",
+  FACTORY = "factory",
+}
+
+function getActiveTab(tab: ActiveTab) {
+  switch (tab) {
+    case ActiveTab.SWAP:
+      return <SwapInterface />;
+    case ActiveTab.LIQUIDITY:
+      return <LiquidityInterface />;
+    case ActiveTab.FACTORY:
+      return <PairFactory />;
+  }
+}
+
+interface BottomTabsProps {
+  activeTab: ActiveTab;
+  setActiveTab: (tab: ActiveTab) => void;
+  tab: ActiveTab;
+}
+
+export function BottomTabs({ activeTab, setActiveTab, tab }: BottomTabsProps) {
+  return (
+    <button
+      className={`px-6 py-3 text-sm font-medium rounded-tl-lg rounded-bl-lg ${
+        activeTab === tab
+          ? "bg-blue-600 text-white"
+          : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+      }`}
+      onClick={() => setActiveTab(tab)}  
+    >
+      {tab}
+    </button>
   );
+}
+
+function App() {
+  const [activeTab, setActiveTab] = useState<ActiveTab>(ActiveTab.SWAP);
 
   return (
     <WagmiProvider config={config}>
@@ -61,43 +97,15 @@ function App() {
             <div className="flex flex-col items-center">
               <div className="bg-white rounded-lg shadow-sm mb-6">
                 <div className="flex">
-                  <button
-                    className={`px-6 py-3 text-sm font-medium rounded-tl-lg rounded-bl-lg ${
-                      activeTab === "swap"
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-50 text-gray-700 hover:bg-gray-100"
-                    }`}
-                    onClick={() => setActiveTab("swap")}
-                  >
-                    Swap
-                  </button>
-                  <button
-                    className={`px-6 py-3 text-sm font-medium rounded-tr-lg rounded-br-lg ${
-                      activeTab === "liquidity"
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-50 text-gray-700 hover:bg-gray-100"
-                    }`}
-                    onClick={() => setActiveTab("liquidity")}
-                  >
-                    Liquidity
-                  </button>
-                  <button
-                    className={`px-6 py-3 text-sm font-medium ${
-                      activeTab === "factory"
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-50 text-gray-700 hover:bg-gray-100"
-                    }`}
-                    onClick={() => setActiveTab("factory")}
-                  >
-                    Factory
-                  </button>
+                 {Object.values(ActiveTab).map((tab) => (
+                  <div key={tab}>
+                    <BottomTabs activeTab={activeTab} setActiveTab={setActiveTab} tab={tab} />
+                  </div>
+                 ))}
                 </div>
               </div>
 
-              {activeTab === "swap" && <SwapInterface />}
-              {activeTab === "liquidity" && <LiquidityInterface />}
-              {activeTab === "factory" && <PairFactory />}
-              {/* <ReservesDisplay /> */}
+              {getActiveTab(activeTab)}
             </div>
           </div>
           <ToastContainer

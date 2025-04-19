@@ -7,7 +7,6 @@ export function useCreatePair() {
   return {
     ...context,
     createPair: (params: { args: unknown[] }) => {
-        console.log(params.args);
       return writeContract({
         address: PAIR_FACTORY_ADDRESS,
         abi: PAIR_FACTORY_ABI,
