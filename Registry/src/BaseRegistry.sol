@@ -2,6 +2,8 @@
 
 pragma solidity >=0.8.2 <0.9.0;
 
+import {Test, console} from "forge-std/Test.sol";
+
 error DenyAccessOnlyOwner();
 error DenyAccessOnlyAdmin();
 error DenyAccessAdminOrOwner();
@@ -33,6 +35,7 @@ abstract contract BaseRegistry {
 
 
     constructor() {
+         console.log("Test1",msg.sender);
         owner = msg.sender;
     }
 

@@ -3,6 +3,7 @@
 pragma solidity >=0.8.2 <0.9.0;
 
 import {BaseRegistry} from "./BaseRegistry.sol";
+
 import "./StringUtils.sol";
 
 contract SimplyRegistry is BaseRegistry {
