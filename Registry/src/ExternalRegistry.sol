@@ -19,9 +19,5 @@ contract ExternalReader {
         return registryReader.owner();
     }
 
-    function readPontuations(address _user) external view returns (uint) {
-        return registryReader.pontuations(_user);
-    }
-
 
 }
