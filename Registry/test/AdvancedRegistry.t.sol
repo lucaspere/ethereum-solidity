@@ -3,17 +3,17 @@
 pragma solidity >=0.8.2 <0.9.0;
 
 import {Test, console} from "forge-std/Test.sol";
-import {AdvancedRegistry} from "../src/AdvancedRegistry.sol";
+import {AdvancedRegistry, InsufficientBalance} from "../src/AdvancedRegistry.sol";
 import {BaseRegistry, DenyAccessAdminOrOwner} from "../src/BaseRegistry.sol";
 
 contract AdvancedRegistryTest is Test {
     AdvancedRegistry registry;
     address owner = address(0xDEADBEEF);
     address user = address(0xCEADBEEB);
+    address payable payableUser = payable(address(0xFEADBEED));
 
     function setUp() public {
         vm.prank(owner);
-
         registry = new AdvancedRegistry();
     }
 
@@ -30,7 +30,7 @@ contract AdvancedRegistryTest is Test {
 
         registry.definyPontuations(user, 100);
 
-        (uint pontuation,, ) = registry.userInfos(user);
+        (uint pontuation, , ) = registry.userInfos(user);
 
         assertEq(pontuation, 100, "User pontuation was not correctly defined");
     }
@@ -50,10 +50,10 @@ contract AdvancedRegistryTest is Test {
 
         vm.prank(user);
         registry.definyPontuations(user, 200);
-
         (uint pontuation, bool isAdmin, ) = registry.userInfos(user);
 
         assertEq(pontuation, 200);
         assertTrue(isAdmin);
     }
+
 }

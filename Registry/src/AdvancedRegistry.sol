@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 
 pragma solidity >=0.8.2 <0.9.0;
+
 import { BaseRegistry } from "./BaseRegistry.sol";
 
 error MaximumPontuationExceeded();
@@ -21,7 +22,7 @@ contract AdvancedRegistry is BaseRegistry {
         require(_value > 0, "Value must be greater than zero.");
         uint currentBalance = address(this).balance;
 
-        require(_value < currentBalance, "Not enough balance in the contract");
+        require(_value < currentBalance, InsufficientBalance(currentBalance, _value));
         require(_destination != address(0), "Inform a valid address.");
 
         (bool success,) = _destination.call{value: _value}("");
