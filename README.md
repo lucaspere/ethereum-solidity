@@ -1,59 +1,66 @@
-# Ethereum and Solidity Studies
+## Foundry
 
-This repository contains my studies and projects related to Ethereum and Solidity.
+**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
 
-## Structure
+Foundry consists of:
 
-- `contracts/`: Smart contracts in Solidity
-- `tests/`: Contract tests
-- `scripts/`: Deployment and utility scripts
-- `docs/`: Documentation and study notes
+-   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
+-   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
+-   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
+-   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
 
-## How to Use
+## Documentation
 
-### Remix
-1. Copy the desired contract from the `contracts/` folder
-2. Paste it into Remix IDE (https://remix.ethereum.org/)
-3. Compile and deploy
+https://book.getfoundry.sh/
 
-### Local Development
-1. Clone the repository
-2. Install dependencies (if necessary)
-3. Run tests
+## Usage
 
-## Learning Path
+### Build
 
-### Basic Concepts
-- Smart Contracts Fundamentals
-- Variables and Data Types
-- Functions and Modifiers
-- Events and Errors
-
-### Intermediate Topics
-- Inheritance and Interfaces
-- Libraries
-- Security Best Practices
-- Testing Strategies
-
-### Advanced Topics
-- DeFi Concepts
-- NFTs and Token Standards
-- Gas Optimization
-- Advanced Security Patterns
-
-
-
-## Hardhat
-
-### Installation
-
-```bash
-npm install --save-dev hardhat
+```shell
+$ forge build
 ```
 
-### Create a Hardhat project
+### Test
 
-```bash
-npx hardhat init
+```shell
+$ forge test
 ```
 
+### Format
+
+```shell
+$ forge fmt
+```
+
+### Gas Snapshots
+
+```shell
+$ forge snapshot
+```
+
+### Anvil
+
+```shell
+$ anvil
+```
+
+### Deploy
+
+```shell
+$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+```
+
+### Cast
+
+```shell
+$ cast <subcommand>
+```
+
+### Help
+
+```shell
+$ forge --help
+$ anvil --help
+$ cast --help
+```
